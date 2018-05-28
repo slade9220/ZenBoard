@@ -176,7 +176,7 @@ class CanvasView: UIView {
         activeLines.setObject(newLine, forKey: touch)
 
         lines.append(newLine)
-        buddahTimer = Timer.scheduledTimer(timeInterval: 5, target: self, selector: #selector(runTimedCode), userInfo: nil, repeats: false)
+        buddahTimer = Timer.scheduledTimer(timeInterval: 25, target: self, selector: #selector(runTimedCode), userInfo: nil, repeats: false)
 
         return newLine
     }
