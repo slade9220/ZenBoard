@@ -13,6 +13,7 @@ class ViewController: UIViewController {
     var visualizeAzimuth = false
 //    var buddahTimer: Timer!
     var ifTimer = false
+    var buddahTimer: Timer!
 
     let reticleView: ReticleView = {
         let view = ReticleView(frame: CGRect.null)
@@ -21,25 +22,32 @@ class ViewController: UIViewController {
 
         return view
     }()
+    
 
-    var canvasView: CanvasView {
-        return view as! CanvasView
-    }
-
-    // MARK: View Life Cycle
+    
 
     override func viewDidLoad() {
-        canvasView.addSubview(reticleView)
-        
+//        canvasView.addSubview(reticleView)
+        view.backgroundColor = .white
         
 
     }
+    
+    var arrayOfcanavs: [CanvasView] = []
 
     // MARK: Touch Handling
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        canvasView.drawTouches(touches: touches, withEvent: event)
+        let newcanvasView = CanvasView()
+        newcanvasView.frame = view.bounds
+        newcanvasView.backgroundColor = UIColor.white.withAlphaComponent(0.0)
+        newcanvasView.addSubview(reticleView)
+        arrayOfcanavs.append(newcanvasView)
+        view.addSubview(newcanvasView)
         
+        newcanvasView.drawTouches(touches: touches, withEvent: event)
+        
+        buddahTimer = Timer.scheduledTimer(timeInterval: 10, target: self, selector: #selector(runTimedCode), userInfo: nil, repeats: false)
         
         
         if visualizeAzimuth {
@@ -54,13 +62,18 @@ class ViewController: UIViewController {
     
     @objc func runTimedCode(){
         
-        canvasView.clear()
-        
-        
+        UIView.animate(withDuration: 5, delay: 0, options: [], animations: {
+            guard let canvas = self.arrayOfcanavs.first else { return }
+            canvas.alpha = 0
+        }, completion: {_ in
+            guard let canvas = self.arrayOfcanavs.first else { return }
+            canvas.removeFromSuperview()
+            self.arrayOfcanavs.remove(at: 0)
+        })
     }
 
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        canvasView.drawTouches(touches: touches, withEvent: event)
+        arrayOfcanavs.last?.drawTouches(touches: touches, withEvent: event)
 
         if visualizeAzimuth {
             for touch in touches {
@@ -77,8 +90,8 @@ class ViewController: UIViewController {
     }
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        canvasView.drawTouches(touches: touches, withEvent: event)
-        canvasView.endTouches(touches: touches, cancel: false)
+        arrayOfcanavs.last?.drawTouches(touches: touches, withEvent: event)
+        arrayOfcanavs.last?.endTouches(touches: touches, cancel: false)
         
         
 //        print(buddahTimer.fireDate)
@@ -96,7 +109,7 @@ class ViewController: UIViewController {
     }
 
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
-        canvasView.endTouches(touches: touches, cancel: true)
+        arrayOfcanavs.last?.endTouches(touches: touches, cancel: true)
 
         if visualizeAzimuth {
             for touch in touches {
@@ -108,25 +121,8 @@ class ViewController: UIViewController {
     }
 
     override func touchesEstimatedPropertiesUpdated(_ touches: Set<UITouch>) {
-        canvasView.updateEstimatedPropertiesForTouches(touches: touches)
+        arrayOfcanavs.last?.updateEstimatedPropertiesForTouches(touches: touches)
     }
-
-    // MARK: Actions
-
-//    @IBAction func clearView(sender: UIBarButtonItem) {
-//        canvasView.clear()
-//    }
-//
-//    @IBAction func toggleDebugDrawing(sender: UIButton) {
-//        canvasView.isDebuggingEnabled = !canvasView.isDebuggingEnabled
-//        visualizeAzimuth = !visualizeAzimuth
-//        sender.isSelected = canvasView.isDebuggingEnabled
-//    }
-//
-//    @IBAction func toggleUsePreciseLocations(sender: UIButton) {
-//        canvasView.usePreciseLocations = !canvasView.usePreciseLocations
-//        sender.isSelected = canvasView.usePreciseLocations
-//    }
 
     // MARK: Rotation
 

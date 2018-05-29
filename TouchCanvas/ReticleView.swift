@@ -111,6 +111,7 @@ class ReticleView: UIView {
     // MARK: Convenience
 
     func renderReticleImage() {
+        
         let imageRadius = ceil(radius * 1.2)
         let imageSize = CGSize(width: imageRadius * 2, height: imageRadius * 2)
         UIGraphicsBeginImageContextWithOptions(imageSize, false, contentScaleFactor)
