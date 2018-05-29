@@ -12,6 +12,8 @@ class CanvasView: UIView {
 
     let isPredictionEnabled = UIDevice.current.userInterfaceIdiom == .pad
     let isTouchUpdatingEnabled = true
+
+    var buddahTimer: Timer!
     
     var usePreciseLocations = true {
         didSet {
@@ -111,12 +113,19 @@ class CanvasView: UIView {
     // MARK: Actions
 
     func clear() {
-        activeLines.removeAllObjects()
-        pendingLines.removeAllObjects()
-        lines.removeAll()
-        finishedLines.removeAll()
-        needsFullRedraw = true
-        setNeedsDisplay()
+        
+        UIView.animate(withDuration: 5, delay: 0, options: [], animations: {
+            self.alpha = 0
+        }, completion: {_ in
+            self.activeLines.removeAllObjects()
+            self.pendingLines.removeAllObjects()
+            self.lines.removeAll()
+            self.finishedLines.removeAll()
+            self.needsFullRedraw = true
+            self.setNeedsDisplay()
+            self.removeFromSuperview()
+        })
+
     }
     
     
@@ -167,7 +176,7 @@ class CanvasView: UIView {
         activeLines.setObject(newLine, forKey: touch)
 
         lines.append(newLine)
-        
+        buddahTimer = Timer.scheduledTimer(timeInterval: 10, target: self, selector: #selector(runTimedCode), userInfo: nil, repeats: false)
 
         return newLine
     }
@@ -290,5 +299,8 @@ class CanvasView: UIView {
         
     }
     
+    @objc func runTimedCode(){
+        clear()
+    }
 }
 
